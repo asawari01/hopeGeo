@@ -1,0 +1,135 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geolearn</title>
+  <link rel="stylesheet" href="login.css" />
+  <style>
+    .hidden { display: none; }
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: #3498db;
+      cursor: pointer;
+      margin-top: 10px;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="login-box">
+      <h2 id="form-title">Login</h2>
+      <p class="desc" id="form-desc">Welcome back to Geolearn</p>
+
+      <div class="social-login">
+        <button id="sign-in-with-google" class="google-btn">Sign in with Google</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm">
+        <input type="text" id="username" placeholder="Username" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+      
+        <button type="submit" class="login-btn">Log In</button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signupForm" class="hidden">
+        <input type="text" id="signup-username" placeholder="Username" required />
+        <input type="email" id="signup-email" placeholder="Email" required />
+        <input type="password" id="signup-password" placeholder="Password" required />
+        <button type="submit" class="login-btn">Sign Up</button>
+      </form>
+
+      <button class="toggle-btn" id="toggleFormBtn">Don't have an account? Sign Up</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+    apiKey: "AIzaSyCTBai0MZYy3nY9cMAv79hKhog65qMcXxg",
+    authDomain: "my-project-79df1.firebaseapp.com",
+    databaseURL: "https://my-project-79df1-default-rtdb.firebaseio.com",
+    projectId: "my-project-79df1",
+    storageBucket: "my-project-79df1.firebasestorage.app",
+    messagingSenderId: "513476588267",
+    appId: "1:513476588267:web:af630111eec2ac80fa44ae"
+  };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Toggle forms
+    const loginForm = document.getElementById("loginForm");
+    const signupForm = document.getElementById("signupForm");
+    const toggleBtn = document.getElementById("toggleFormBtn");
+    const formTitle = document.getElementById("form-title");
+    const formDesc = document.getElementById("form-desc");
+
+    toggleBtn.addEventListener("click", () => {
+      const isLogin = !loginForm.classList.contains("hidden");
+      loginForm.classList.toggle("hidden");
+      signupForm.classList.toggle("hidden");
+
+      if (isLogin) {
+        formTitle.textContent = "Sign Up";
+        formDesc.textContent = "Create your Geolearn account";
+        toggleBtn.textContent = "Already have an account? Log In";
+      } else {
+        formTitle.textContent = "Login";
+        formDesc.textContent = "Welcome back to Geolearn";
+        toggleBtn.textContent = "Don't have an account? Sign Up";
+      }
+    });
+
+    // Login logic
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("Login successful!");
+        window.location.href="map.html";
+        // Redirect or show dashboard here
+      } catch (error) {
+        alert(`Login failed: ${error.message}`);
+      }
+    });
+
+    // Signup logic
+    signupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const username = document.getElementById("signup-username").value;
+      const email = document.getElementById("signup-email").value;
+      const password = document.getElementById("signup-password").value;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await setDoc(doc(db, "users", user.uid), {
+          username: username,
+          email: email
+        });
+
+        alert("Signup successful! You can now log in.");
+        toggleBtn.click(); // switch to login form
+      } catch (error) {
+        alert(`Signup failed: ${error.message}`);
+      }
+    });
+  </script>
+</body>
+</html>
