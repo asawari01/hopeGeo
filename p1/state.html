@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title id="state-title">State - GeoLearn</title>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous"></script>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrNCnakTSSeAP0q3li6xlXugwXQW0ZRDg",
+      authDomain: "geolearn1.firebaseapp.com",
+      projectId: "geolearn1",
+      storageBucket: "geolearn1.appspot.com",
+      messagingSenderId: "226790797831",
+      appId: "1:226790797831:web:e3640bbf5400bdd6bb70a2",
+      measurementId: "G-QEEDNE0YE7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // Get the state name from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const state = urlParams.get("state");
+    console.log("State name from URL:", state);
+
+    // Function to load state-specific content from Firebase
+    async function loadStateContent(statedata) {
+      console.log("Fetching data for state:", state); 
+      const stateRef = ref(database, 'states/' + state); // Modify this path as per your database structure
+      const snapshot = await get(stateRef);
+
+      if (snapshot.exists()) {
+        const stateData = snapshot.val();
+        console.log("Fetched data:", stateData);
+        // Set the page title and state name dynamically
+        document.getElementById("state-title").innerText = stateData.title;
+        document.getElementById("state-name").innerText = `Welcome to ${state.charAt(0).toUpperCase() + state.slice(1)} 🌸`;
+
+        // Set the video URL
+        document.getElementById("state-video").src = stateData.videoUrl;
+
+        // Set the info paragraph
+        document.getElementById("state-info").innerText = stateData.info;
+
+        // Add fun facts cards
+        const cardsContainer = document.getElementById("state-cards");
+        stateData.cards.forEach(fact => {
+          const card = document.createElement("div");
+          card.classList.add("card");
+          card.innerText = fact;
+          cardsContainer.appendChild(card);
+        });
+
+        // Set the quiz link dynamically
+        document.getElementById("quiz-link").href = stateData.quizLink;
+      } else {
+        console.log("State data not found!");
+        // If state data not found, show a fallback message
+        document.getElementById("state-name").innerText = "State not found!";
+        document.getElementById("state-info").innerText = "Sorry, we couldn't find information about this state.";
+      }
+    }
+
+    // Load content for the given state
+    if (state) {
+      loadStateContent(state.toLowerCase());
+    } else {
+      document.getElementById("state-name").innerText = "State not found!";
+      document.getElementById("state-info").innerText = "Sorry, we couldn't find information about this state.";
+    }
+
+    
+
+
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f8f5;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      color: #2C5F2D;
+      margin-bottom: 30px;
+    }
+
+    .video-section {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    iframe {
+      width: 100%;
+      max-width: 800px;
+      height: 450px;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+
+    .info-section {
+      background-color: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-bottom: 40px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .info-section p {
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background-color: #f0f0f0;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: 0.3s ease;
+    }
+
+    .card:hover {
+      background-color: #e3f7e3;
+      transform: scale(1.02);
+    }
+
+    .quiz-btn {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 50px;
+    }
+
+    .quiz-btn a {
+      background-color: #2C5F2D;
+      color: white;
+      text-decoration: none;
+      padding: 14px 28px;
+      font-size: 18px;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    .quiz-btn a:hover {
+      background-color: #21451f;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1 id="state-name">Welcome to 🌸</h1>
+
+    <div class="video-section">
+      <iframe id="state-video" title="State Travel Video" allowfullscreen></iframe>
+    </div>
+
+    <div class="info-section">
+      <p id="state-info"></p>
+    </div>
+
+    <div class="cards-container" id="state-cards">
+      <!-- Fun facts will be dynamically inserted here -->
+    </div>
+
+    <div class="quiz-btn" onclick="goToQuiz()">
+      <a id="quiz-link" href="#">🧠 Take the Quiz</a>
+    </div>
+  </div>
+
+</body>
+</html>

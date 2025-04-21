@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoLearn - Profile</title>
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="profile.css" />
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrNCnakTSSeAP0q3li6xlXugwXQW0ZRDg",
+      authDomain: "geolearn1.firebaseapp.com",
+      projectId: "geolearn1",
+      storageBucket: "geolearn1.appspot.com",
+      messagingSenderId: "226790797831",
+      appId: "1:226790797831:web:e3640bbf5400bdd6bb70a2",
+      measurementId: "G-QEEDNE0YE7",
+      databaseURL: "https://geolearn1-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById("user-name").textContent = user.email;
+      } else {
+        window.location.href = "login.html"; // redirect if not logged in
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="profile-container">
+    <h1>Profile</h1>
+    <div class="profile">
+      <img id="user-avatar" src="images/profile.jpg" alt="User Avatar">
+      <h2 id="user-name">Loading...</h2>
+    </div>
+    <div class="stats">
+      <p>Score: <span id="user-score">0</span></p>
+      <p>Rewards: <span id="user-rewards">None</span></p>
+    </div>
+    <div class="visited-states">
+      <h3>Visited States</h3>
+      <ul id="states-list">
+        <li>Loading...</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
